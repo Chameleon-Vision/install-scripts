@@ -88,7 +88,7 @@ wget -q -O - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key ad
 echo "deb [arch=armhf] https://apt.bell-sw.com/ stable main" | sudo tee /etc/apt/sources.list.d/bellsoft.list
 
 sudo apt update
-sudo apt install bellsoft-java12 jq
+sudo apt install -y bellsoft-java12 jq
 
 echo "Downloading latest Chameleon Vision..."
 
