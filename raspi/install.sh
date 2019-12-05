@@ -88,16 +88,14 @@ wget -q -O - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key ad
 echo "deb [arch=armhf] https://apt.bell-sw.com/ stable main" | sudo tee /etc/apt/sources.list.d/bellsoft.list
 
 sudo apt update
-sudo apt install -y bellsoft-java12 jq
+sudo apt install -y bellsoft-java12
 
 echo "Downloading latest Chameleon Vision..."
 
 # for future use...
 sudo mkdir -p /usr/share/chameleon-vision
 
-latest_chameleon_url=$(curl -s https://api.github.com/repos/chameleon-vision/chameleon-vision/releases/latest | jq -r ".assets[] | select(.name | test(\".jar\")) | .browser_download_url")
-
-wget ${latest_chameleon_url} -O chameleon-vision.jar
+curl -s https://api.github.com/repos/chameleon-vision/chameleon-vision/releases/latest | grep "browser_download_url.*jar" | cut -d : -f 2,3 | tr -d '"' | wget -qi - -O chameleon-vision.jar
 
 echo "Chameleon Vision is ready for use! run 'sudo java -jar chameleon-vision.jar' to start!"
 exit 0
