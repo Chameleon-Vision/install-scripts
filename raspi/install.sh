@@ -1,75 +1,82 @@
-#!/bin/sh
+#!/bin/bash
 # setup script for Chameleon Vision on Raspberry Pi 3 and 4
 
-is_pi() {
+function is_pi() {
   ARCH=$(dpkg --print-architecture)
   if [ "$ARCH" = "armhf" ] ; then
-    return 0
+    echo 0
   else
-    return 1
+    echo 1
   fi
 }
 
 
-is_pione() {
+function is_pione() {
    if grep -q "^Revision\s*:\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
-      return 0
+      echo 0
    elif grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo ; then
-      return 0
+      echo 0
    else
-      return 1
+      echo 1
    fi
 }
 
-is_pitwo() {
-   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
-   return $?
+function is_pitwo() {
+   if grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo; then
+      echo 0
+   else
+      echo 1
+   fi
 }
 
-is_pizero() {
-   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[9cC][0-9a-fA-F]$" /proc/cpuinfo
-   return $?
+function is_pizero() {
+   if grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[9cC][0-9a-fA-F]$" /proc/cpuinfo; then
+      echo 0
+   else
+      echo 1
+   fi
 }
 
-is_pifour() {
-   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
-   return $?
+function is_pifour() {
+   if grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo; then
+      echo 0
+   else
+      echo 1
+   fi
 }
 
-get_pi_type () {
-  if is_pi; then
-    if is_pione; then
-      return 1
-    elif is_pitwo; then
-      return 2
-    elif is_pizero; then
-      return 0
-    elif is_pifour; then
-      return 4
+function get_pi_type() {
+  if [ $(is_pi) ]; then
+    if [ $(is_pione) -eq 0 ]; then
+      echo 1
+    elif [ $(is_pitwo) -eq 0 ]; then
+      echo 2
+    elif [ $(is_pizero) -eq 0 ]; then
+      echo 0
+    elif [ $(is_pifour) -eq 0 ]; then
+      echo 4
     else
-      return 3
+      echo 3
     fi
   else
-    return 99
+    echo -1
   fi
 }
 
 pi_type=$(get_pi_type)
 
-echo "Skipping Pi check..."
-
-#if [ "$pi_type" != "3" ] || [ "$pi_type" != "4" ]
-#then
-#  echo "This script is only for Raspberry Pi 3 and 4!"
-#  exit 1
-#fi
+if [ $pi_type -ne 3 ] && [ $pi_type -ne 4 ]
+then
+  echo "This script is only for Raspberry Pi 3 and 4!"
+  exit 1
+else
+  echo "Detected Raspberry Pi $pi_type, begginning install."
+fi
 
 echo "Checking network connection..."
 wget -q --spider http://google.com
 
-is_online=[ $? -eq 0 ]
-
-if [is_online != 1]
+if [ $? -ne 0 ]
 then
   echo "This script requires an internet connection!"
   exit 1
